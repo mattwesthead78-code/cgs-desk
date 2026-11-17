@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0b1014" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>La Paz sales desk</title>
+  <link rel="icon" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1014;
+      --surface: #161d24;
+      --raised: #222b33;
+      --fg: #ebe6dc;
+      --muted: #9a9386;
+      --line: rgba(235, 230, 220, 0.14);
+      --gold: #c9a36a;
+      --gold-ink: #1a140c;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--fg); }
+    body { font-family: Outfit, sans-serif; font-size: 16px; line-height: 1.5; }
+    button, a { font: inherit; }
+    button { cursor: pointer; }
+    header, main { width: min(720px, 100%); margin: 0 auto; padding: 24px 20px; }
+    header { padding-bottom: 8px; }
+    .kicker { margin: 0; color: var(--muted); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; }
+    h1 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 44px; line-height: 1; margin: 8px 0; }
+    .lede { color: var(--muted); margin: 0 0 16px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
+    .stat { background: var(--surface); border-radius: 16px; padding: 12px 14px; }
+    .stat b { display: block; font-size: 24px; font-weight: 500; }
+    .stat span { color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+    nav { display: flex; gap: 8px; }
+    nav button, .btn, .chip { border: 0; border-radius: 999px; min-height: 44px; padding: 0 16px; }
+    nav button { background: var(--surface); color: var(--fg); }
+    nav button.on { background: var(--fg); color: var(--bg); }
+    .card { background: var(--surface); border-radius: 20px; padding: 18px; margin: 12px 0; }
+    .meta { color: var(--muted); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin: 0; }
+    h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 32px; margin: 4px 0 8px; }
+    .mail { color: var(--muted); margin: 0; }
+    .note { margin: 8px 0 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; background: var(--gold); color: var(--gold-ink); font-weight: 500; }
+    .btn.quiet { background: var(--raised); color: var(--fg); }
+    .letter { white-space: pre-wrap; background: var(--bg); border-radius: 14px; padding: 14px; margin: 14px 0 0; font-family: inherit; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip { background: var(--bg); color: var(--muted); }
+    .chip.on { background: var(--gold); color: var(--gold-ink); }
+    ol { list-style: none; padding: 0; margin: 0; }
+    ol li { background: var(--surface); border-radius: 14px; padding: 12px 14px; margin: 8px 0; display: flex; justify-content: space-between; gap: 12px; }
+    ol li small { color: var(--muted); display: block; }
+    footer { width: min(720px, 100%); margin: 0 auto; padding: 8px 20px 32px; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="kicker">Cabo Guest Solutions</p>
+    <h1>La Paz desk</h1>
+    <p class="lede">This is not the website. It writes the letter and opens it in your mail. You tap send, then add your signature. This month is La Paz. The rest of the world waits.</p>
+    <div class="stats">
+      <div class="stat"><span>Asked</span><b id="n-asked">0 / 12</b></div>
+      <div class="stat"><span>Replies</span><b id="n-replies">0</b></div>
+      <div class="stat"><span>Calls</span><b id="n-calls">0</b></div>
+    </div>
+    <nav>
+      <button type="button" id="tab-today" class="on">Today</button>
+      <button type="button" id="tab-hotels">Hotels</button>
+      <button type="button" id="tab-month">30 days</button>
+    </nav>
+  </header>
+  <main id="app"></main>
+  <footer>On an Android phone, open the browser menu and choose Add to Home screen. It then opens like an app. Do not put this link on the company website.</footer>
+  <script>
+    const DEMO = "https://youtu.be/G1ReKwM7EPs";
+    const SITE = "https://www.caboguestsolutions.com";
+    const START = new Date(2026, 10, 17);
+    const KEY = "cgs-desk-v1";
+    const hotels = [
+      ["brew", "The Adventure Brew Hostel", "tabh.gerencia@gmail.com", "Gerente", 1, "The inbox is already the manager."],
+      ["rover", "Wild Rover Hostel", "wrlp@wildroverhostels.com", "Gerente General", 1, "Use this address. The old lapaz@ address is dead."],
+      ["republica", "Hostal República", "reservas@hostalrepublica.com", "Propietario", 1, "Small enough that the owner reads this inbox."],
+      ["lapaz", "Hotel La Paz", "hotellapazoficial@gmail.com", "Propietario", 1, "The Gmail published on their Facebook page."],
+      ["stannum", "Stannum Boutique Hotel", "ventas1@stannumhotels.com", "Gerente General", 1, "A commercial inbox. Ask them to pass it to the manager."],
+      ["mitru-x", "Mitru Express", "info@mitruexpress.com", "Gerente General", 1, "Miraflores. Send this before Mitru Sur."],
+      ["mitru-s", "Hotel Mitru Sur", "reservas@hotelmitrusur.com", "Gerente General", 1, "Calacoto. Same owners as the Express."],
+      ["gloria", "Hotel Gloria", "reservas@hotelgloria.com.bo", "Gerente General", 2, "A group. Only after the first seven."],
+      ["rosario", "Hotel Rosario", "reservas@gruporosario.travel", "Gerente General", 2, "Covers Centro and Sur. This is the booking office."],
+      ["camino", "Suites Camino Real", "suites@caminoreal.com.bo", "Gerente General", 2, "A group hotel. A longer sale."],
+      ["atix", "Atix Hotel", "info@atixhotel.com", "Gerente General", 2, "Calacoto. Send after the independents."],
+      ["casa", "Casa Grande", "hotel@casa-grande.com.bo", "Gerente General", 2, "A group. Last on this list."]
+    ].map(([id, name, email, role, wave, note]) => ({ id, name, email, role, wave, note }));
+
+    const weeks = [
+      ["RackFolio is the system we build for hotels, hostels and restaurants. This month we are in La Paz. The desk, housekeeping, stock, staff and the day's takings, in one place. Each house gets its own name on it. We host it.\n\n" + SITE,
+       "RackFolio es el sistema que armamos para hoteles, hostales y restaurantes. Este mes estamos en La Paz. Recepción, limpieza, stock, personal y la caja del día, en un solo lugar. Cada casa lleva su nombre.\n\n" + SITE,
+       "Check a guest in. The room is no longer free.", "La recepción, sin el cuaderno.", "RackFolio — la recepción"],
+      ["Housekeeping should not hear about a dirty room on WhatsApp. In RackFolio the floor sees dirty, in progress and ready. When the room is finished, it goes back on sale.\n\n" + SITE,
+       "Limpieza no debería enterarse de un cuarto sucio por WhatsApp. En RackFolio el piso ve sucio, en proceso y listo. Cuando el cuarto termina, vuelve a la venta.\n\n" + SITE,
+       "Dirty. Then ready. Then back on sale.", "El piso, en el mismo sistema que la recepción.", "RackFolio — limpieza"],
+      ["The shopping list should be what the house used, not what someone remembered. If it drops under the line you set, it goes on the list. Staff clock in with their own PIN.\n\n" + SITE,
+       "La lista de compras tiene que ser lo que la casa usó, no lo que alguien recordó. Si baja de la línea que usted fijó, entra a la lista. El personal marca entrada con su propio PIN.\n\n" + SITE,
+       "Under the line. Onto the list.", "El stock escribe la lista.", "RackFolio — stock y personal"],
+      ["Night audit is the part that usually lives in a spreadsheet. What was taken. What is still owed. Who never arrived. RackFolio closes the day from the same system the desk used that morning.\n\n" + SITE,
+       "El cierre del día no debería vivir en una hoja de cálculo. Qué entró. Qué sigue debiendo. Quién no llegó. RackFolio cierra el día en el mismo sistema que usó la recepción en la mañana.\n\n" + SITE,
+       "Close the day before you go home.", "La caja del día, antes de irse.", "RackFolio — el cierre"]
+    ];
+
+    const store = load();
+    let tab = "today";
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || { status: {}, done: {} }; }
+      catch { return { status: {}, done: {} }; }
+    }
+    function save() { localStorage.setItem(KEY, JSON.stringify(store)); }
+    function iso(d) { return d.toISOString().slice(0, 10); }
+    function today() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+    function indexOf(d) { return Math.round((d.getTime() - START.getTime()) / 86400000); }
+    function dateAt(i) { return new Date(START.getTime() + i * 86400000); }
+    function label(i) { return dateAt(i).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }); }
+    function kind(i) {
+      if (i < 0 || i > 29) return i > 29 ? "done" : "rest";
+      const dow = dateAt(i).getDay();
+      if (dow === 2 || dow === 4) return "email";
+      if (dow === 1 || dow === 3 || dow === 5) return "post";
+      if (dow === 6) return "chase";
+      return "rest";
+    }
+    function stateOf(id) { return (store.status[id] && store.status[id].state) || "new"; }
+    function subject(h) { return h.role === "Propietario" ? "RackFolio — para el propietario" : "RackFolio — para el Gerente General"; }
+    function letter(h) {
+      const who = h.role === "Propietario" ? "Estimado propietario de " + h.name + ":" : "Estimado gerente de " + h.name + ":";
+      return who + "\n\nLe escribo desde Cabo Guest Solutions. Estamos hablando con hoteles y hostales en La Paz.\n\nArmamos RackFolio, el sistema con el que la casa lleva la recepción, la limpieza, el stock, el personal y la caja del día. No es el mismo paquete para todos. Lo ajustamos a su operación: su nombre, su logo y sus habitaciones. Las apps de limpieza, mantenimiento y gerencia van incluidas. Si lo quiere, también la app del huésped, para pedir toallas, room service o avisar a recepción.\n\nLo alojamos nosotros, para que no se ponga lento un sábado. Es una suscripción, y las mejoras entran en el mismo pago.\n\nSi la casa tiene restaurante o bar, también lo armamos.\n\nSi le sirve, en treinta minutos se lo muestro con sus habitaciones, no con un hotel de muestra.\n\nDemo: " + DEMO + "\nSitio: " + SITE + "\n\nQuedo atento.";
+    }
+    function mailto(h) {
+      return "mailto:" + h.email + "?subject=" + encodeURIComponent(subject(h)) + "&body=" + encodeURIComponent(letter(h));
+    }
+    function posts(i) {
+      const week = Math.min(3, Math.max(0, Math.floor(i / 7)));
+      const w = weeks[week];
+      const dow = dateAt(i).getDay();
+      if (dow === 1) return [
+        ["LinkedIn", "EN", w[0]],
+        ["Facebook", "ES", w[1]]
+      ];
+      if (dow === 3) return [["Instagram and TikTok", "ES", w[2] + "\n\n" + w[3]]];
+      if (dow === 5) {
+        const list = [["YouTube Short", "EN", w[4] + "\n\n" + w[2] + "\n\nLink the full demo under the film: " + DEMO]];
+        if (week === 3) {
+          list.push(["LinkedIn", "EN", "If you run the desk and the floor on two different tools, we should talk. Thirty minutes. We will use your rooms, not a sample hotel. We are in La Paz this month.\n\n" + SITE]);
+          list.push(["Facebook", "ES", "Si la recepción y la limpieza viven en dos herramientas distintas, conversemos. Treinta minutos. Usamos sus habitaciones, no un hotel de muestra. Este mes estamos en La Paz.\n\n" + SITE]);
+        }
+        return list;
+      }
+      return [];
+    }
+    function sentToday() {
+      const day = iso(today());
+      return Object.values(store.status).filter((s) => s && s.on === day && s.state !== "new").length;
+    }
+    function queue() {
+      const first = hotels.filter((h) => h.wave === 1 && stateOf(h.id) === "new");
+      const pool = first.length ? first : hotels.filter((h) => stateOf(h.id) === "new");
+      return pool.slice(0, Math.max(0, 5 - sentToday()));
+    }
+    function setStatus(id, state) {
+      store.status[id] = { state, on: iso(today()) };
+      save();
+      draw();
+    }
+    async function copy(text, btn) {
+      try { await navigator.clipboard.writeText(text); }
+      catch {
+        const area = document.createElement("textarea");
+        area.value = text; document.body.appendChild(area); area.select();
+        document.execCommand("copy"); area.remove();
+      }
+      const old = btn.textContent;
+      btn.textContent = "Copied";
+      setTimeout(() => { btn.textContent = old; }, 1400);
+    }
+    function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
+
+    function draw() {
+      const asked = hotels.filter((h) => stateOf(h.id) !== "new").length;
+      const replies = hotels.filter((h) => ["replied", "call"].includes(stateOf(h.id))).length;
+      const calls = hotels.filter((h) => stateOf(h.id) === "call").length;
+      document.getElementById("n-asked").textContent = asked + " / 12";
+      document.getElementById("n-replies").textContent = String(replies);
+      document.getElementById("n-calls").textContent = String(calls);
+      document.getElementById("tab-today").classList.toggle("on", tab === "today");
+      document.getElementById("tab-hotels").classList.toggle("on", tab === "hotels");
+      document.getElementById("tab-month").classList.toggle("on", tab === "month");
+      const app = document.getElementById("app");
+      app.innerHTML = "";
+      const index = indexOf(today());
+      const showing = Math.min(29, Math.max(0, index));
+      if (tab === "today") app.append(todayView(index, showing));
+      if (tab === "hotels") hotels.forEach((h) => app.append(hotelCard(h, true)));
+      if (tab === "month") app.append(monthView(index));
+    }
+
+    function todayView(index, showing) {
+      const wrap = el("<section></section>");
+      const k = kind(showing);
+      wrap.append(el(`<p class="meta">${index < 0 ? "Starts 17 November" : index > 29 ? "Month complete" : "Day " + (showing + 1) + " of 30"}</p>`));
+      wrap.append(el(`<h2>${label(showing)}</h2>`));
+      if (k === "email") {
+        const list = queue();
+        wrap.append(el(`<p class="lede">${list.length ? "Open the mail, read it, add your signature, tap send, then mark it sent. Five is the day's work." : "Today's five are done, or everyone on the list has been asked."}</p>`));
+        list.forEach((h) => wrap.append(hotelCard(h, false)));
+      } else if (k === "post") {
+        wrap.append(el(`<p class="lede">Post these. Do not write a new one.</p>`));
+        posts(showing).forEach((p, n) => {
+          const id = showing + "-" + n;
+          const card = el(`<article class="card"><p class="meta">${p[0]} · ${p[1]}</p><pre class="letter"></pre><div class="row"><button type="button" class="btn quiet">Copy post</button></div></article>`);
+          card.querySelector("pre").textContent = p[2];
+          card.querySelector("button").addEventListener("click", (e) => copy(p[2], e.currentTarget));
+          const mark = el(`<label class="note"><input type="checkbox" ${store.done[id] ? "checked" : ""}/> Posted</label>`);
+          mark.querySelector("input").addEventListener("change", () => { store.done[id] = !store.done[id]; save(); });
+          card.append(mark);
+          wrap.append(card);
+        });
+      } else if (k === "chase") {
+        wrap.append(el(`<p class="lede">Reply to anyone who wrote. Do not publish anything new.</p>`));
+        const waiting = hotels.filter((h) => stateOf(h.id) === "sent");
+        if (!waiting.length) wrap.append(el(`<article class="card"><p>Nothing is waiting.</p></article>`));
+        waiting.forEach((h) => wrap.append(hotelCard(h, true)));
+      } else if (index > 29) {
+        wrap.append(el(`<p class="lede">The thirty days are done. Chase anyone who has not replied before you start another city.</p>`));
+      } else {
+        wrap.append(el(`<p class="lede">Nothing goes out today.</p>`));
+      }
+      return wrap;
+    }
+
+    function hotelCard(h, showAll) {
+      const card = el(`<article class="card"></article>`);
+      card.append(el(`<p class="meta">${h.wave === 1 ? "First" : "Later"} · ${h.role}</p>`));
+      card.append(el(`<h2></h2>`));
+      card.querySelector("h2").textContent = h.name;
+      card.append(el(`<p class="mail"></p>`));
+      card.querySelector(".mail").textContent = h.email;
+      card.append(el(`<p class="note"></p>`));
+      card.querySelector(".note").textContent = h.note;
+      const actions = el(`<div class="row"></div>`);
+      const copyBtn = el(`<button type="button" class="btn quiet">Copy letter</button>`);
+      copyBtn.addEventListener("click", () => copy(subject(h) + "\n\n" + letter(h), copyBtn));
+      const open = el(`<a class="btn">Open in mail</a>`);
+      open.href = mailto(h);
+      actions.append(copyBtn, open);
+      card.append(actions);
+      if (!showAll) {
+        const pre = el(`<pre class="letter"></pre>`);
+        pre.textContent = letter(h);
+        card.append(pre);
+      }
+      const chips = el(`<div class="chips"></div>`);
+      [["new", "Not sent"], ["sent", "Sent"], ["replied", "Replied"], ["call", "Call booked"], ["later", "Not now"]].forEach(([id, name]) => {
+        const b = el(`<button type="button" class="chip">${name}</button>`);
+        if (stateOf(h.id) === id) b.classList.add("on");
+        b.addEventListener("click", () => setStatus(h.id, id));
+        chips.append(b);
+      });
+      card.append(chips);
+      return card;
+    }
+
+    function monthView(index) {
+      const list = el(`<ol></ol>`);
+      for (let i = 0; i < 30; i++) {
+        const k = kind(i);
+        const line = k === "email" ? "Email the next houses" : k === "post" ? posts(i).map((p) => p[0]).join(" · ") : k === "chase" ? "Answer replies" : "Rest";
+        const item = el(`<li><div><b></b><small></small></div><span></span></li>`);
+        item.querySelector("b").textContent = label(i);
+        item.querySelector("small").textContent = line;
+        item.querySelector("span").textContent = i === index ? "Today" : "Day " + (i + 1);
+        if (i === index) item.style.outline = "1px solid #c9a36a";
+        list.append(item);
+      }
+      return list;
+    }
+
+    document.getElementById("tab-today").onclick = () => { tab = "today"; draw(); };
+    document.getElementById("tab-hotels").onclick = () => { tab = "hotels"; draw(); };
+    document.getElementById("tab-month").onclick = () => { tab = "month"; draw(); };
+    draw();
+  </script>
+</body>
+</html>
