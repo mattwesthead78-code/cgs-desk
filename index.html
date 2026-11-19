@@ -81,8 +81,8 @@
   <script>
     const DEMO = "https://youtu.be/G1ReKwM7EPs";
     const SITE = "https://www.caboguestsolutions.com";
-    const START = new Date(2026, 10, 17);
-    const KEY = "cgs-desk-v1";
+    const START = new Date(2026, 10, 23);
+    const KEY = "cgs-desk-v2";
     const hotels = [
       ["brew", "The Adventure Brew Hostel", "tabh.gerencia@gmail.com", "Gerente", 1, "The inbox is already the manager."],
       ["rover", "Wild Rover Hostel", "wrlp@wildroverhostels.com", "Gerente General", 1, "Use this address. The old lapaz@ address is dead."],
@@ -211,7 +211,13 @@
     function todayView(index, showing) {
       const wrap = el("<section></section>");
       const k = kind(showing);
-      wrap.append(el(`<p class="meta">${index < 0 ? "Starts 17 November" : index > 29 ? "Month complete" : "Day " + (showing + 1) + " of 30"}</p>`));
+      if (index < 0) {
+        wrap.append(el(`<p class="meta">Starts Monday 23 November</p>`));
+        wrap.append(el(`<h2>Not yet</h2>`));
+        wrap.append(el(`<p class="lede">Day 1 is Monday 23 November. Nothing goes out before then. The old list has been cleared.</p>`));
+        return wrap;
+      }
+      wrap.append(el(`<p class="meta">${index > 29 ? "Month complete" : "Day " + (showing + 1) + " of 30"}</p>`));
       wrap.append(el(`<h2>${label(showing)}</h2>`));
       if (k === "email") {
         const list = queue();
